@@ -1,2 +1,0 @@
-# MadeInGuetto
-Cloth brand
