@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DISTORCE — Landing Page</title>
+
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+  <!-- Basecoat CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css">
+  <!-- System Shell -->
+  <style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Complements basecoat; artifacts override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: #0a8f3c; }
+.kpi .kpi-delta.down { color: #cf3131; }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+</style>
+  
+
+  <style>
+    :root {
+      --accent: #C8FF00;
+      --accent-text: #C8FF00;
+      --accent-contrast: #0A0A0A;
+      --bg: #0A0A0A;
+      --surface: #121212;
+      --surface-elevated: #1A1A1A;
+      --border: #222222;
+      --text: #F2F0EB;
+      --text-muted: #8F8E89;
+      --red-accent: #FF3B30;
+      --font-display: 'Anton', impact, sans-serif;
+      --font-body: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TYPOGRAPHY */
+    .font-display {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* GLITCH LOGO */
+    .glitch-logo {
+      position: relative;
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      text-decoration: none;
+      display: inline-block;
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+
+    .glitch-logo::before,
+    .glitch-logo::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .glitch-logo::before {
+      color: var(--accent);
+      transform: translate(-2px, 1px);
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      opacity: 0.85;
+    }
+
+    .glitch-logo::after {
+      color: var(--red-accent);
+      transform: translate(2px, -1px);
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+      opacity: 0.85;
+    }
+
+    .glitch-logo:hover {
+      transform: skew(-2deg) scale(1.02);
+    }
+    .glitch-logo:hover::before {
+      transform: translate(-3px, -1px);
+    }
+    .glitch-logo:hover::after {
+      transform: translate(3px, 2px);
+    }
+
+    /* BUTTONS */
+    .btn-acid {
+      background: var(--accent);
+      color: #0A0A0A;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1.6rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: 1px solid var(--accent);
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-acid:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--text);
+      background: #d4ff24;
+      color: #000;
+    }
+
+    .btn-outline-raw {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1.6rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: 1px solid var(--text);
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.15s ease;
+    }
+    .btn-outline-raw:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--accent);
+    }
+
+    .btn-custom-art {
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      letter-spacing: 0.06em;
+      padding: 0.9rem 1.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      border: 2px solid var(--red-accent);
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-custom-art:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--accent);
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 900;
+      background: rgba(10, 10, 10, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.15s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 85vh;
+      padding-top: 7rem;
+      padding-bottom: 5rem;
+      display: flex;
+      align-items: center;
+      background: radial-gradient(circle at 80% 20%, rgba(200, 255, 0, 0.06) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(255, 59, 48, 0.04) 0%, transparent 40%);
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-bg-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.18;
+      background-image: 
+        linear-gradient(to right, #222 1px, transparent 1px),
+        linear-gradient(to bottom, #222 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .hero-graphic-circle {
+      position: absolute;
+      right: -80px;
+      top: 20%;
+      width: 420px;
+      height: 420px;
+      border: 1px dashed rgba(200, 255, 0, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: spinSlow 30s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.5rem;
+      background: rgba(200, 255, 0, 0.04);
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      line-height: 0.92;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    .hero-title .highlight {
+      color: var(--accent);
+      display: inline-block;
+      position: relative;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 2.2rem;
+      font-weight: 400;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    /* MARQUEE */
+    .marquee-strip {
+      background: var(--accent);
+      color: #0A0A0A;
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 0.75rem 0;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeScroll 18s linear infinite;
+    }
+    .marquee-item {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: 0.08em;
+      padding: 0 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .marquee-item span.dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #0A0A0A;
+      border-radius: 50%;
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* SECTIONS */
+    .section-wrap {
+      padding: 5.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      margin-bottom: 3rem;
+    }
+    .section-tag {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .section-title {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1;
+    }
+
+    /* ESTAMPAS GRID */
+    .prints-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .print-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+    }
+
+    .print-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(200, 255, 0, 0.15);
+    }
+
+    .print-preview {
+      background: #050505;
+      padding: 2.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+
+    .print-preview svg {
+      width: 100%;
+      height: 100%;
+      max-height: 200px;
+      transition: transform 0.25s ease;
+    }
+
+    .print-card:hover .print-preview svg {
+      transform: scale(1.05);
+    }
+
+    .print-info {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      justify-content: space-between;
+    }
+
+    .print-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .print-category {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border: 1px solid rgba(200, 255, 0, 0.4);
+    }
+
+    .print-code {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .print-title {
+      font-size: 1.4rem;
+      margin-bottom: 1.1rem;
+      color: var(--text);
+    }
+
+    .btn-card-cta {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .print-card:hover .btn-card-cta {
+      background: var(--accent);
+      color: #0A0A0A;
+      border-color: var(--accent);
+    }
+
+    /* BLOCO ARTE PRÓPRIA */
+    .custom-art-banner {
+      margin-top: 2.5rem;
+      background: #101010;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red-accent);
+      padding: 2.2rem 2.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .custom-art-banner::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: radial-gradient(circle at 100% 50%, rgba(255, 59, 48, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .custom-art-tag {
+      font-size: 0.75rem;
+      color: var(--red-accent);
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .custom-art-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .custom-art-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 500px;
+    }
+
+    /* MODAL MANDA SUA ARTE */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-window {
+      background: #0E0E0E;
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 540px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 1.8rem;
+      position: relative;
+      border-radius: 0;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transform: translateY(16px);
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    }
+    .modal-overlay.open .modal-window {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    .modal-title {
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--text);
+      margin: 0;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      font-size: 1.5rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 0;
+      transition: all 0.15s ease;
+    }
+    .modal-close-btn:hover {
+      border-color: var(--red-accent);
+      color: var(--red-accent);
+      background: rgba(255, 59, 48, 0.08);
+    }
+
+    /* STEP INDICATOR */
+    .steps-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 1.5rem;
+      padding: 0.6rem 0.9rem;
+      background: #141414;
+      border: 1px solid var(--border);
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .step-badge.active {
+      color: var(--accent);
+    }
+    .step-badge.inactive {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+    .step-arrow {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* UPLOAD DROPZONE */
+    .upload-zone {
+      border: 2px dashed #333;
+      padding: 2rem 1.2rem;
+      text-align: center;
+      background: #080808;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      margin-bottom: 1.3rem;
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(200, 255, 0, 0.03);
+    }
+    .upload-zone-icon {
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    .upload-zone-icon svg {
+      width: 42px;
+      height: 42px;
+    }
+    .upload-zone-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    .upload-zone-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* PREVIEW BOX */
+    .preview-box {
+      display: none;
+      margin-bottom: 1.3rem;
+      border: 1px solid var(--border);
+      background: #050505;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+    .preview-box.has-image {
+      display: block;
+    }
+    .preview-img-wrap {
+      max-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: repeating-conic-gradient(#141414 0% 25%, #0A0A0A 0% 50%) 50% / 20px 20px;
+      border: 1px solid #202020;
+      margin-bottom: 0.8rem;
+      overflow: hidden;
+    }
+    .preview-img-wrap img {
+      max-height: 250px;
+      width: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .preview-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 0.8rem;
+    }
+    .preview-filename {
+      color: var(--text-muted);
+      font-family: monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+    }
+    .btn-change-art {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      cursor: pointer;
+      border-radius: 0;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .btn-change-art:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* TEXTAREA & INPUTS */
+    .modal-field {
+      margin-bottom: 1.3rem;
+    }
+    .modal-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .modal-textarea {
+      width: 100%;
+      background: #141414;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 0.75rem 0.9rem;
+      resize: vertical;
+      min-height: 80px;
+      border-radius: 0;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .modal-textarea:focus {
+      border-color: var(--accent);
+    }
+    .modal-textarea::placeholder {
+      color: #666;
+    }
+
+    .modal-cta-btn {
+      width: 100%;
+      padding: 0.95rem 1.4rem;
+      background: var(--accent);
+      color: #0A0A0A;
+      border: 1px solid var(--accent);
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border-radius: 0;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .modal-cta-btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 var(--text);
+      background: #d4ff24;
+    }
+    .modal-support-text {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* COMO FUNCIONA */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2.2rem 2rem;
+      position: relative;
+    }
+    .step-number {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      opacity: 0.85;
+    }
+    .step-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+    .step-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* DIFERENCIAIS */
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .diff-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1.8rem;
+      border-left: 3px solid var(--border);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .diff-card:hover {
+      border-left-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .diff-card .diff-icon {
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+    .diff-card h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .diff-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* FAQ ACCORDION */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .faq-trigger {
+      width: 100%;
+      text-align: left;
+      padding: 1.3rem 1.6rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      gap: 1rem;
+    }
+    .faq-trigger:hover {
+      color: var(--accent);
+    }
+    .faq-icon-arrow {
+      transition: transform 0.2s ease;
+      font-size: 1.25rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .faq-item.active .faq-icon-arrow {
+      transform: rotate(45deg);
+      color: var(--red-accent);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease, padding 0.25s ease;
+      padding: 0 1.6rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      border-top: 1px solid transparent;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding: 0 1.6rem 1.3rem 1.6rem;
+      border-top-color: var(--border);
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background: #050505;
+      padding: 4.5rem 0 2.5rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2.5rem;
+      margin-bottom: 3.5rem;
+    }
+    .footer-brand {
+      max-width: 380px;
+    }
+    .footer-brand p {
+      color: var(--text-muted);
+      margin: 1rem 0 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    .footer-links-group {
+      display: flex;
+      gap: 3.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-col h5 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .footer-col a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s ease;
+    }
+    .footer-col a:hover {
+      color: var(--text);
+    }
+    .footer-bottom {
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* FLOATING WHATSAPP CTA */
+    .floating-wa-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 950;
+      background: var(--accent);
+      color: #0A0A0A;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(200, 255, 0, 0.4);
+      text-decoration: none;
+      transition: transform 0.2s cubic-bezier(0.3, 0, 0, 1), box-shadow 0.2s ease;
+      animation: pulseBtn 2.4s infinite;
+    }
+    .floating-wa-btn:hover {
+      transform: scale(1.1) rotate(6deg);
+      box-shadow: 0 8px 26px rgba(200, 255, 0, 0.6);
+    }
+    .floating-wa-btn svg {
+      width: 32px;
+      height: 32px;
+      fill: #0A0A0A;
+    }
+
+    @keyframes pulseBtn {
+      0% { box-shadow: 0 0 0 0 rgba(200, 255, 0, 0.5); }
+      70% { box-shadow: 0 0 0 16px rgba(200, 255, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(200, 255, 0, 0); }
+    }
+
+    /* FLOATING CHATBOT WIDGET */
+    .chatbot-toggle {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 950;
+      background: var(--surface-elevated);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.6);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .chatbot-toggle:hover {
+      transform: scale(1.08);
+      background: var(--accent);
+      color: #0A0A0A;
+    }
+    .chatbot-toggle svg {
+      width: 26px;
+      height: 26px;
+      fill: currentColor;
+    }
+    .chatbot-badge-ping {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      background: var(--red-accent);
+      border-radius: 50%;
+      border: 2px solid #0A0A0A;
+    }
+
+    .chatbot-panel {
+      position: fixed;
+      bottom: 90px;
+      left: 24px;
+      width: 380px;
+      max-width: calc(100vw - 32px);
+      height: 520px;
+      max-height: calc(100vh - 120px);
+      background: #0E0E0E;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.85);
+      z-index: 960;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(20px) scale(0.96);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .chatbot-panel.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .chat-status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent);
+    }
+    .chat-header-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+    .chat-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.2rem;
+    }
+    .chat-close-btn:hover {
+      color: var(--red-accent);
+    }
+
+    .chat-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: #080808;
+    }
+    .chat-tab {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 0.65rem 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .chat-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(200, 255, 0, 0.03);
+    }
+
+    .chat-tab-content {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    .chat-tab-content.active {
+      display: flex;
+    }
+
+    /* FAQ Quick chips */
+    .quick-chips-body {
+      padding: 1.1rem;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .quick-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.75rem 0.9rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .quick-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #191919;
+      transform: translateX(4px);
+    }
+    .quick-chip span.arrow {
+      color: var(--accent);
+    }
+    .chip-answer-modal {
+      background: #141414;
+      border: 1px solid var(--accent);
+      padding: 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text);
+      display: none;
+    }
+
+    /* AI Chat Body */
+    .ai-chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      background: #0a0a0a;
+    }
+    .chat-bubble {
+      max-width: 82%;
+      padding: 0.65rem 0.9rem;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #0A0A0A;
+      font-weight: 600;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0.6rem 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: bounceTyping 1.4s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounceTyping {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .ai-chat-input-bar {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+      background: #080808;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .ai-chat-input {
+      flex: 1;
+      background: #141414;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.8rem;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .ai-chat-input:focus {
+      border-color: var(--accent);
+    }
+    .ai-send-btn {
+      background: var(--accent);
+      color: #0A0A0A;
+      border: none;
+      padding: 0 0.9rem;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .navbar-inner {
+        padding: 0.8rem 1rem;
+      }
+      .nav-links {
+        display: none;
+      }
+      .hero {
+        padding-top: 6rem;
+      }
+      .hero-graphic-circle {
+        display: none;
+      }
+      .custom-art-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.6rem 1.4rem;
+        gap: 1.4rem;
+      }
+      .btn-custom-art {
+        width: 100%;
+      }
+      .modal-window {
+        padding: 1.3rem;
+      }
+      .chatbot-panel {
+        bottom: 84px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        height: 480px;
+      }
+      .floating-wa-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 52px;
+        height: 52px;
+      }
+      .chatbot-toggle {
+        bottom: 16px;
+        left: 16px;
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    @media print {
+      .navbar, .floating-wa-btn, .chatbot-toggle, .chatbot-panel, .marquee-strip {
+        display: none !important;
+      }
+      body {
+        background: #fff;
+        color: #000;
+      }
+      .print-card {
+        page-break-inside: avoid;
+        border: 1px solid #000;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. NAVIGATION -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="glitch-logo" data-text="DISTORCE">DISTORCE</a>
+      <ul class="nav-links">
+        <li><a href="#estampas" class="nav-link">Estampas</a></li>
+        <li><a href="#arte-propria" class="nav-link">Sua arte</a></li>
+        <li><a href="#como-funciona" class="nav-link">Como funciona</a></li>
+        <li><a href="#duvidas" class="nav-link">Dúvidas</a></li>
+      </ul>
+      <a href="https://wa.me/5511953336229?text=Oi!%20Quero%20fazer%20um%20pedido%20na%20DISTORCE." target="_blank" rel="noopener noreferrer" class="btn-acid" style="padding: 0.6rem 1.1rem; font-size: 0.95rem;">
+        Pedir no WhatsApp
+      </a>
+    </div>
+  </header>
+
+  <!-- 2. HERO -->
+  <section class="hero">
+    <div class="hero-bg-lines"></div>
+    <div class="hero-graphic-circle"></div>
+    <div class="shell-container" style="position: relative; z-index: 2;">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span>⚡ FRETE GRÁTIS ACIMA DE R$ 149</span>
+        </div>
+        <h1 class="hero-title font-display">
+          VISTA O QUE <br>
+          <span class="highlight">VOCÊ É.</span> SEM CENSURA.
+        </h1>
+        <p class="hero-sub">
+          Sua ideia, sua estampa, sua cara. Camisetas pesadas em 100% algodão penteado com silk screen de alta definição que não racha.
+        </p>
+        <div class="hero-actions">
+          <a href="#estampas" class="btn-acid">
+            Ver estampas
+          </a>
+          <a href="https://wa.me/5511953336229?text=Oi!%20Vim%20pelo%20site%20da%20DISTORCE%20e%20quero%20conversar%20sobre%20as%20camisetas." target="_blank" rel="noopener noreferrer" class="btn-outline-raw">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.79 14c-.24.67-1.4 1.25-1.93 1.33-.51.08-1.18.11-3.39-.81-2.82-1.17-4.64-4.04-4.78-4.23-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06.98-2.35.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.49.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.15.17-.31.37-.44.5-.15.14-.3.3-.13.6.17.29.77 1.27 1.66 2.06 1.14 1.02 2.1 1.33 2.4 1.48.29.14.47.12.64-.08.17-.19.74-.86.94-1.16.19-.29.39-.24.65-.15.26.1 1.67.79 1.96.93.29.14.48.22.55.33.07.12.07.69-.17 1.36z"/>
+            </svg>
+            Chamar no WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <div class="marquee-item">ESTAMPA NOVA <span class="dot"></span></div>
+      <div class="marquee-item">FRETE GRÁTIS <span class="dot"></span></div>
+      <div class="marquee-item">QUALIDADE PREMIUM <span class="dot"></span></div>
+      <div class="marquee-item">ALGODÃO PESADO <span class="dot"></span></div>
+      <div class="marquee-item">NÃO CRAQUELA <span class="dot"></span></div>
+      <div class="marquee-item">STREETWEAR BRASIL <span class="dot"></span></div>
+      <!-- Duplicate for smooth infinite loop -->
+      <div class="marquee-item">ESTAMPA NOVA <span class="dot"></span></div>
+      <div class="marquee-item">FRETE GRÁTIS <span class="dot"></span></div>
+      <div class="marquee-item">QUALIDADE PREMIUM <span class="dot"></span></div>
+      <div class="marquee-item">ALGODÃO PESADO <span class="dot"></span></div>
+      <div class="marquee-item">NÃO CRAQUELA <span class="dot"></span></div>
+      <div class="marquee-item">STREETWEAR BRASIL <span class="dot"></span></div>
+    </div>
+  </div>
+
+  <!-- 4. BANCO DE ESTAMPAS -->
+  <section id="estampas" class="section-wrap">
+    <div class="shell-container">
+      <div class="section-header">
+        <span class="section-tag">// DROP EXCLUSIVO</span>
+        <h2 class="section-title font-display">BANCO DE ESTAMPAS</h2>
+        <p style="color: var(--text-muted); max-width: 600px; margin-top: 0.5rem;">
+          Escolha a arte que bate com a sua postura. Clica no botão e peça diretamente com nosso time no WhatsApp.
+        </p>
+      </div>
+
+      <div class="prints-grid">
+
+        <!-- 1: SMILE 2K -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="75" stroke="#C8FF00" stroke-width="6" stroke-dasharray="14 6"/>
+              <!-- Glitched smile face -->
+              <ellipse cx="75" cy="78" rx="8" ry="14" fill="#C8FF00"/>
+              <ellipse cx="125" cy="82" rx="8" ry="18" fill="#FF3B30"/>
+              <path d="M58 120 C 80 160, 120 160, 142 120" stroke="#F2F0EB" stroke-width="8" stroke-linecap="square"/>
+              <line x1="45" y1="95" x2="155" y2="95" stroke="#C8FF00" stroke-width="2" stroke-dasharray="4 4"/>
+              <text x="65" y="188" font-family="'Anton', sans-serif" font-size="16" fill="#C8FF00" letter-spacing="4">DISTORÇÃO</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Clássica</span>
+              <span class="print-code">#DST-01</span>
+            </div>
+            <h3 class="print-title font-display">SMILE 2K</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20SMILE%202K.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 2: FLAME RUNNER -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M100 20 C100 20 125 60 115 90 C130 70 145 95 140 120 C155 105 160 135 145 165 C130 185 85 190 60 165 C40 145 50 115 65 105 C60 90 75 75 80 60 C85 45 100 20 100 20Z" fill="#0A0A0A" stroke="#C8FF00" stroke-width="5"/>
+              <path d="M100 65 C105 85 125 105 115 130 C125 120 130 140 120 155 C110 170 85 170 75 155 C65 140 75 120 85 115 C85 95 100 65 100 65Z" fill="#FF3B30"/>
+              <path d="M100 115 C102 125 112 135 108 145 C100 155 92 152 90 145 C88 138 95 128 100 115Z" fill="#F2F0EB"/>
+              <line x1="20" y1="185" x2="180" y2="185" stroke="#C8FF00" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Pesada</span>
+              <span class="print-code">#DST-02</span>
+            </div>
+            <h3 class="print-title font-display">FLAME RUNNER</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20FLAME%20RUNNER.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 3: BARBED HEART -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M100 165 L45 105 C25 80 40 40 75 45 C90 48 100 65 100 65 C100 65 110 48 125 45 C160 40 175 80 155 105 Z" fill="#141414" stroke="#FF3B30" stroke-width="6"/>
+              <!-- Barbed Wire ring -->
+              <ellipse cx="100" cy="100" rx="65" ry="32" stroke="#F2F0EB" stroke-width="3" stroke-dasharray="12 10"/>
+              <!-- Barbs -->
+              <path d="M50 95 L40 85 M50 105 L40 115 M150 95 L160 85 M150 105 L160 115 M100 68 L100 55 M100 132 L100 145" stroke="#C8FF00" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Pesada</span>
+              <span class="print-code">#DST-03</span>
+            </div>
+            <h3 class="print-title font-display">BARBED HEART</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20BARBED%20HEART.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 4: GLITCH FACE -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Cyber outline silhouette -->
+              <rect x="45" y="30" width="110" height="140" stroke="#262626" stroke-width="2"/>
+              <path d="M60 55 H130 V75 H70 V95 H145 V125 H60 V145 H140" stroke="#C8FF00" stroke-width="4"/>
+              <rect x="50" y="80" width="90" height="12" fill="#FF3B30" opacity="0.9"/>
+              <rect x="65" y="110" width="70" height="8" fill="#F2F0EB"/>
+              <line x1="30" y1="100" x2="170" y2="100" stroke="#C8FF00" stroke-width="2"/>
+              <text x="60" y="45" font-family="monospace" font-size="10" fill="#C8FF00">ERR_SYS_04</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Psicodélica</span>
+              <span class="print-code">#DST-04</span>
+            </div>
+            <h3 class="print-title font-display">GLITCH FACE</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20GLITCH%20FACE.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 5: CROWNED SKULL -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Crown -->
+              <polygon points="65,60 75,35 100,50 125,35 135,60" fill="#C8FF00" stroke="#0A0A0A" stroke-width="2"/>
+              <!-- Skull -->
+              <path d="M65 85 C65 60 135 60 135 85 C135 105 125 110 125 130 H75 C75 110 65 105 65 85 Z" fill="#F2F0EB"/>
+              <!-- Eyes & Nose -->
+              <circle cx="85" cy="85" r="10" fill="#0A0A0A"/>
+              <circle cx="115" cy="85" r="10" fill="#0A0A0A"/>
+              <polygon points="100,98 95,108 105,108" fill="#FF3B30"/>
+              <!-- Teeth -->
+              <rect x="80" y="130" width="40" height="20" fill="#F2F0EB"/>
+              <line x1="88" y1="130" x2="88" y2="150" stroke="#0A0A0A" stroke-width="2"/>
+              <line x1="96" y1="130" x2="96" y2="150" stroke="#0A0A0A" stroke-width="2"/>
+              <line x1="104" y1="130" x2="104" y2="150" stroke="#0A0A0A" stroke-width="2"/>
+              <line x1="112" y1="130" x2="112" y2="150" stroke="#0A0A0A" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Pesada</span>
+              <span class="print-code">#DST-05</span>
+            </div>
+            <h3 class="print-title font-display">CROWNED SKULL</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20CROWNED%20SKULL.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 6: PSY EYE -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Eye outer -->
+              <path d="M30 100 C60 50, 140 50, 170 100 C140 150, 60 150, 30 100 Z" stroke="#C8FF00" stroke-width="5" fill="#141414"/>
+              <!-- Iris concentric -->
+              <circle cx="100" cy="100" r="34" fill="#FF3B30"/>
+              <circle cx="100" cy="100" r="22" fill="#0A0A0A"/>
+              <circle cx="100" cy="100" r="10" fill="#C8FF00"/>
+              <!-- Radiating spikes -->
+              <line x1="100" y1="25" x2="100" y2="45" stroke="#F2F0EB" stroke-width="3"/>
+              <line x1="100" y1="155" x2="100" y2="175" stroke="#F2F0EB" stroke-width="3"/>
+              <line x1="45" y1="50" x2="60" y2="65" stroke="#F2F0EB" stroke-width="3"/>
+              <line x1="155" y1="50" x2="140" y2="65" stroke="#F2F0EB" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Psicodélica</span>
+              <span class="print-code">#DST-06</span>
+            </div>
+            <h3 class="print-title font-display">PSY EYE</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20PSY%20EYE.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 7: HAND SIGNS -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Street sign hand silhouette -->
+              <path d="M75 160 V105 C75 98 85 98 85 105 V60 C85 52 95 52 95 60 V100 C95 100 95 55 105 55 C115 55 115 100 115 100 V75 C115 68 125 68 125 75 V115 C125 115 135 110 135 125 V160 Z" stroke="#C8FF00" stroke-width="4" fill="#141414"/>
+              <line x1="50" y1="140" x2="150" y2="140" stroke="#FF3B30" stroke-width="4"/>
+              <circle cx="100" cy="120" r="6" fill="#F2F0EB"/>
+              <text x="65" y="185" font-family="'Anton', sans-serif" font-size="14" fill="#F2F0EB" letter-spacing="2">RUA PURA</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Clássica</span>
+              <span class="print-code">#DST-07</span>
+            </div>
+            <h3 class="print-title font-display">HAND SIGNS</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20HAND%20SIGNS.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 8: GOTH TYPE -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="25" y="45" width="150" height="110" stroke="#262626" stroke-width="2"/>
+              <text x="100" y="98" font-family="'Anton', sans-serif" font-size="28" fill="#F2F0EB" text-anchor="middle" letter-spacing="4">DISTORCE</text>
+              <text x="102" y="100" font-family="'Anton', sans-serif" font-size="28" fill="#FF3B30" opacity="0.6" text-anchor="middle" letter-spacing="4">DISTORCE</text>
+              <text x="98" y="96" font-family="'Anton', sans-serif" font-size="28" fill="#C8FF00" opacity="0.6" text-anchor="middle" letter-spacing="4">DISTORCE</text>
+              <line x1="35" y1="120" x2="165" y2="120" stroke="#C8FF00" stroke-width="2"/>
+              <text x="100" y="138" font-family="monospace" font-size="10" fill="#C8FF00" text-anchor="middle">HEAVYWEIGHT NOISE</text>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Clássica</span>
+              <span class="print-code">#DST-08</span>
+            </div>
+            <h3 class="print-title font-display">GOTH TYPE</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20GOTH%20TYPE.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 9: VOLT -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="115,25 65,105 105,105 85,175 145,95 105,95" fill="#C8FF00"/>
+              <polygon points="120,28 70,108 110,108 90,178 150,98 110,98" fill="none" stroke="#FF3B30" stroke-width="2"/>
+              <circle cx="100" cy="100" r="70" stroke="#F2F0EB" stroke-width="1" stroke-dasharray="6 6"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Psicodélica</span>
+              <span class="print-code">#DST-09</span>
+            </div>
+            <h3 class="print-title font-display">VOLT</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20VOLT.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+        <!-- 10: SPIRAL TRIP -->
+        <article class="print-card">
+          <div class="print-preview">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Spiral paths -->
+              <circle cx="100" cy="100" r="15" stroke="#C8FF00" stroke-width="3"/>
+              <circle cx="100" cy="100" r="30" stroke="#FF3B30" stroke-width="3" stroke-dasharray="10 6"/>
+              <circle cx="100" cy="100" r="48" stroke="#F2F0EB" stroke-width="3"/>
+              <circle cx="100" cy="100" r="66" stroke="#C8FF00" stroke-width="3" stroke-dasharray="16 8"/>
+              <circle cx="100" cy="100" r="82" stroke="#262626" stroke-width="3"/>
+              <line x1="20" y1="20" x2="180" y2="180" stroke="#C8FF00" stroke-width="2"/>
+              <line x1="180" y1="20" x2="20" y2="180" stroke="#FF3B30" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="print-info">
+            <div class="print-top-meta">
+              <span class="print-category">Psicodélica</span>
+              <span class="print-code">#DST-10</span>
+            </div>
+            <h3 class="print-title font-display">SPIRAL TRIP</h3>
+            <a href="https://wa.me/5511953336229?text=Oi!%20Vi%20a%20landing%20da%20DISTORCE%20e%20quero%20a%20estampa%20SPIRAL%20TRIP.%20Como%20fa%C3%A7o%20pra%20pedir%3F" target="_blank" rel="noopener noreferrer" class="btn-card-cta">
+              Quero essa estampa
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- CARD DE ARTE PRÓPRIA -->
+      <div id="arte-propria" class="custom-art-banner">
+        <div class="custom-art-info">
+          <span class="custom-art-tag font-display">// TUA IDEIA NA PEÇA</span>
+          <h3 class="custom-art-title font-display">TEM UMA ARTE PRÓPRIA?</h3>
+          <p class="custom-art-desc">Manda sua arte que a gente estampa. Sem enrolação.</p>
+        </div>
+        <button id="openArtModalBtn" type="button" class="btn-custom-art">
+          <span>Enviar minha arte</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. COMO FUNCIONA -->
+  <section id="como-funciona" class="section-wrap">
+    <div class="shell-container">
+      <div class="section-header">
+        <span class="section-tag">// PROCESSO RETO</span>
+        <h2 class="section-title font-display">COMO FUNCIONA</h2>
+        <p style="color: var(--text-muted); max-width: 500px; margin-top: 0.5rem;">
+          Sem formulário chato, sem cadastro demorado. Direto pelo WhatsApp.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <h3 class="font-display">ESCOLHE SUA ESTAMPA OU MANDA SUA ARTE</h3>
+          <p>Pega uma do banco ou envia a sua própria.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <h3 class="font-display">CHAMA NO WHATSAPP</h3>
+          <p>Confirme seu tamanho (P ao XGG), informe seu CEP e escolha a melhor forma de pagamento (PIX ou cartão).</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <h3 class="font-display">A GENTE IMPRIME E ENTREGA</h3>
+          <p>Produzimos com matriz de alta densidade e enviamos código de rastreamento direto para seu WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. DIFERENCIAIS -->
+  <section class="section-wrap" style="background: #0D0D0D;">
+    <div class="shell-container">
+      <div class="section-header">
+        <span class="section-tag">// POR QUE A DISTORCE</span>
+        <h2 class="section-title font-display">QUALIDADE DE RUA</h2>
+      </div>
+
+      <div class="diff-grid">
+        <div class="diff-card">
+          <div class="diff-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h4 class="font-display">NÃO CRAQUELA</h4>
+          <p>Silk screen com tinta plastisol curada a 160°C. Resiste a dezenas de lavagens sem desbotar nem trincar.</p>
+        </div>
+
+        <div class="diff-card">
+          <div class="diff-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="3" width="15" height="13"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <h4 class="font-display">ENVIO PRA TODO BRASIL</h4>
+          <p>Parceria com Correios e Jadlog. Rastreio em tempo real e frete grátis para compras a partir de R$ 149.</p>
+        </div>
+
+        <div class="diff-card">
+          <div class="diff-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </div>
+          <h4 class="font-display">TROCA SEM BUROCRACIA</h4>
+          <p>Não serviu ou não era o que esperava? Tem 7 dias corridos após o recebimento para trocar sem estresse.</p>
+        </div>
+
+        <div class="diff-card">
+          <div class="diff-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <h4 class="font-display">ATENDIMENTO HUMANO</h4>
+          <p>Você fala com quem entende de streetwear, tira dúvidas de caimento e personaliza seu pedido direto no chat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. FAQ -->
+  <section id="duvidas" class="section-wrap">
+    <div class="shell-container">
+      <div class="section-header" style="text-align: center;">
+        <span class="section-tag">// TIRA-DÚVIDAS</span>
+        <h2 class="section-title font-display">PERGUNTAS FREQUENTES</h2>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+          Tudo o que você precisa saber antes de mandar mensagem no Whats.
+        </p>
+      </div>
+
+      <div class="faq-list">
+        <!-- Q1 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Qual é o prazo de entrega?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>O tempo médio de postagem é de 2 a 3 dias úteis após o pagamento. O prazo dos Correios/transportadora varia de 3 a 7 dias úteis para Sul/Sudeste e 5 a 12 dias úteis para demais regiões.</p>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Quais tamanhos estão disponíveis?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Trabalhamos do P ao XGG com modelagem streetwear tradicional (ombros levemente caídos e caimento solto). Se curtir estilo oversized bem largão, sugerimos pedir um número acima.</p>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Quais são as formas de pagamento?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Aceitamos PIX (com confirmação instantânea e 5% de desconto), cartão de crédito em até 3x sem juros (ou até 12x) e boleto bancário.</p>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Como funciona a política de trocas?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Você tem até 7 dias corridos após o recebimento para solicitar troca de tamanho ou modelo. A peça precisa estar sem marcas de uso e com a etiqueta intacta.</p>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Qual é o tecido das camisetas?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Malha 100% algodão penteado fio 30.1 ou 26.1 pesada (gramatura 180g), gola canelada de 2,5cm com reforço ombro a ombro. Toque macio que não deforma após lavagem.</p>
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="faq-item">
+          <button class="faq-trigger" type="button" aria-expanded="false">
+            <span>Como faço meu pedido?</span>
+            <span class="faq-icon-arrow">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Basta clicar em qualquer botão "Quero essa estampa" ou "Pedir no WhatsApp". Você será direcionado direto com nosso atendente para confirmar endereço e dados de envio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. RODAPÉ -->
+  <footer class="site-footer">
+    <div class="shell-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="glitch-logo" data-text="DISTORCE">DISTORCE</a>
+          <p>Streetwear sem firula para quem vive o asfalto. Peças autênticas, cortes pesados e estampas com postura.</p>
+          <a href="https://wa.me/5511953336229?text=Oi!%20Vim%20pelo%20rodap%C3%A9%20do%20site%20da%20DISTORCE." target="_blank" rel="noopener noreferrer" class="btn-acid" style="font-size: 0.9rem; padding: 0.65rem 1.2rem;">
+            Chamar no WhatsApp
+          </a>
+        </div>
+
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h5>Navegação</h5>
+            <ul>
+              <li><a href="#estampas">Estampas</a></li>
+              <li><a href="#como-funciona">Como funciona</a></li>
+              <li><a href="#duvidas">Dúvidas Frequentes</a></li>
+              <li><a href="javascript:void(0)" onclick="window.print()">Imprimir Catálogo</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h5>Contato Direto</h5>
+            <ul>
+              <li><a href="https://wa.me/5511953336229" target="_blank" rel="noopener noreferrer">(11) 95333-6229</a></li>
+              <li><a href="mailto:contato@distorce.com.br">contato@distorce.com.br</a></li>
+              <li><span style="color: var(--text-muted); font-size: 0.85rem;">Seg a Sex: 09h às 20h</span></li>
+              <li><span style="color: var(--text-muted); font-size: 0.85rem;">Sáb: 10h às 16h</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>DISTORCE © 2026 — Todos os direitos reservados.</div>
+        <div style="color: var(--accent); font-family: monospace; font-size: 0.8rem;">ESTILO URBANO INDEPENDENTE</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL: MANDA SUA ARTE -->
+  <div id="artModalOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="artModalTitle">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--red-accent); letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase;">// CUSTOM DROP</span>
+          <h3 id="artModalTitle" class="modal-title font-display">MANDA SUA ARTE</h3>
+        </div>
+        <button id="artModalClose" class="modal-close-btn" type="button" aria-label="Fechar modal">&times;</button>
+      </div>
+
+      <!-- INDICADOR DE ETAPAS -->
+      <div class="steps-indicator">
+        <span class="step-badge active">
+          <span style="color: var(--accent);">●</span>
+          ETAPA 1: SUA ARTE
+        </span>
+        <span class="step-arrow">→</span>
+        <span class="step-badge inactive">
+          <span>○</span>
+          ETAPA 2: WHATSAPP
+        </span>
+      </div>
+
+      <!-- ÁREA DE UPLOAD -->
+      <input type="file" id="artFileInput" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display: none;">
+      
+      <div id="artDropzone" class="upload-zone" tabindex="0" role="button" aria-label="Escolher ou soltar arte">
+        <div class="upload-zone-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="upload-zone-text">Arrasta tua arte aqui ou clica pra escolher</div>
+        <div class="upload-zone-hint">PNG, JPG, WEBP, GIF ou SVG</div>
+      </div>
+
+      <!-- PREVIEW DA ARTE -->
+      <div id="artPreviewBox" class="preview-box">
+        <div class="preview-img-wrap">
+          <img id="artPreviewImg" src="" alt="Preview da arte">
+        </div>
+        <div class="preview-meta">
+          <span id="artFileName" class="preview-filename">arquivo.png</span>
+          <button id="btnChangeArt" type="button" class="btn-change-art">Trocar arte</button>
+        </div>
+      </div>
+
+      <!-- OBSERVAÇÕES -->
+      <div class="modal-field">
+        <label for="artNotes" class="modal-label">Conta pra gente: tamanho, posição da estampa, ideia, qualquer coisa.</label>
+        <textarea id="artNotes" class="modal-textarea" rows="3" placeholder="Quero na camiseta preta, estampa grande nas costas"></textarea>
+      </div>
+
+      <!-- BOTÃO PRINCIPAL -->
+      <button id="btnGoToWhatsapp" type="button" class="modal-cta-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.79 14c-.24.67-1.4 1.25-1.93 1.33-.51.08-1.18.11-3.39-.81-2.82-1.17-4.64-4.04-4.78-4.23-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06.98-2.35.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.49.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.15.17-.31.37-.44.5-.15.14-.3.3-.13.6.17.29.77 1.27 1.66 2.06 1.14 1.02 2.1 1.33 2.4 1.48.29.14.47.12.64-.08.17-.19.74-.86.94-1.16.19-.29.39-.24.65-.15.26.1 1.67.79 1.96.93.29.14.48.22.55.33.07.12.07.69-.17 1.36z"/>
+        </svg>
+        <span>Ir pra etapa 2: WhatsApp</span>
+      </button>
+
+      <p class="modal-support-text">
+        Depois de chamar no WhatsApp, manda a arte por lá que a gente aprova e segue com seu pedido.
+      </p>
+    </div>
+  </div>
+
+  <!-- FLOATING WHATSAPP BUTTON (Bottom Right) -->
+  <a href="https://wa.me/5511953336229?text=Oi!%20Estou%20na%20p%C3%A1gina%20da%20DISTORCE%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida." target="_blank" rel="noopener noreferrer" class="floating-wa-btn" title="Falar no WhatsApp" aria-label="Abrir WhatsApp da DISTORCE">
+    <svg viewBox="0 0 24 24">
+      <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.79 14c-.24.67-1.4 1.25-1.93 1.33-.51.08-1.18.11-3.39-.81-2.82-1.17-4.64-4.04-4.78-4.23-.14-.19-1.14-1.52-1.14-2.9 0-1.38.72-2.06.98-2.35.26-.29.57-.36.76-.36.19 0 .38 0 .55.01.18.01.42-.07.65.49.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.19-.15.31-.29.48-.15.17-.31.37-.44.5-.15.14-.3.3-.13.6.17.29.77 1.27 1.66 2.06 1.14 1.02 2.1 1.33 2.4 1.48.29.14.47.12.64-.08.17-.19.74-.86.94-1.16.19-.29.39-.24.65-.15.26.1 1.67.79 1.96.93.29.14.48.22.55.33.07.12.07.69-.17 1.36z"/>
+    </svg>
+  </a>
+
+  <!-- FLOATING CHATBOT BUTTON & PANEL (Bottom Left) -->
+  <button id="chatbotToggle" class="chatbot-toggle" type="button" aria-label="Abrir assistente DISTORCE" title="Assistente DISTORCE">
+    <div class="chatbot-badge-ping"></div>
+    <svg viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6v-2h12v2zm0-3H6V7h12v2z"/>
+    </svg>
+  </button>
+
+  <div id="chatbotPanel" class="chatbot-panel" role="dialog" aria-modal="true" aria-label="Assistente DISTORCE">
+    <div class="chat-header">
+      <div class="chat-header-title">
+        <div class="chat-status-dot"></div>
+        <span class="chat-header-name">DISTORCE BOT</span>
+      </div>
+      <button id="chatCloseBtn" class="chat-close-btn" type="button" title="Fechar chat">&times;</button>
+    </div>
+
+    <div class="chat-tabs">
+      <button id="tabQuickBtn" class="chat-tab active" type="button">Dúvidas Rápidas</button>
+      <button id="tabAiBtn" class="chat-tab" type="button">IA DISTORCE</button>
+    </div>
+
+    <!-- TAB 1: QUICK CHIPS -->
+    <div id="tabQuick" class="chat-tab-content active">
+      <div class="quick-chips-body">
+        <button class="quick-chip" data-answer="O envio é feito em 2 a 3 dias úteis. A entrega para Sul e Sudeste leva de 3 a 7 dias úteis. Demais estados entre 5 a 12 dias úteis via Correios/Jadlog.">
+          <span>Prazo de entrega</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="quick-chip" data-answer="Trabalhamos do P ao XGG em modelagem streetwear solta. Para um visual oversized bem largo, recomendamos pegar um número maior do que seu padrão.">
+          <span>Guia de tamanhos</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="quick-chip" data-answer="Aceitamos PIX (com 5% de desconto imediato), cartão de crédito em até 3x sem juros (ou até 12x) e boleto.">
+          <span>Formas de pagamento</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="quick-chip" data-answer="Você tem 7 dias corridos após o recebimento para solicitar troca de tamanho ou peça. Sem burocracia, direto pelo WhatsApp!">
+          <span>Trocas e devolução</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="quick-chip" data-answer="Algodão penteado premium fio 30.1/26.1, gramatura encorpada 180g e silk screen resistente que não racha na máquina de lavar.">
+          <span>Tecido e acabamento</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="quick-chip" data-answer="Basta clicar em 'Quero essa estampa' ou mandar um 'Salve' no WhatsApp (11) 95333-6229. A gente fecha tudo pelo chat!">
+          <span>Como pedir</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <div id="chipAnswerBox" class="chip-answer-modal"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: AI CONVERSATIONAL -->
+    <div id="tabAi" class="chat-tab-content">
+      <div id="aiChatBody" class="ai-chat-body">
+        <div class="chat-bubble bot">
+          E aí! Sou o bot da DISTORCE. Pergunta aí sobre tamanhos, tecidos, entregas, pedidos ou atacado. Se precisar de humano, eu te conecto rapidão!
+        </div>
+      </div>
+
+      <form id="aiChatForm" class="ai-chat-input-bar">
+        <input id="aiChatInput" class="ai-chat-input" type="text" placeholder="Escreva sua pergunta..." autocomplete="off">
+        <button type="submit" class="ai-send-btn">ENVIAR</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // MODAL: MANDA SUA ARTE
+      const openArtModalBtn = document.getElementById('openArtModalBtn');
+      const artModalOverlay = document.getElementById('artModalOverlay');
+      const artModalClose = document.getElementById('artModalClose');
+      const artDropzone = document.getElementById('artDropzone');
+      const artFileInput = document.getElementById('artFileInput');
+      const artPreviewBox = document.getElementById('artPreviewBox');
+      const artPreviewImg = document.getElementById('artPreviewImg');
+      const artFileName = document.getElementById('artFileName');
+      const btnChangeArt = document.getElementById('btnChangeArt');
+      const artNotes = document.getElementById('artNotes');
+      const btnGoToWhatsapp = document.getElementById('btnGoToWhatsapp');
+
+      let currentFile = null;
+
+      function openModal() {
+        artModalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        artModalOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      if (openArtModalBtn) {
+        openArtModalBtn.addEventListener('click', openModal);
+      }
+
+      if (artModalClose) {
+        artModalClose.addEventListener('click', closeModal);
+      }
+
+      artModalOverlay.addEventListener('click', (e) => {
+        if (e.target === artModalOverlay) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && artModalOverlay.classList.contains('open')) {
+          closeModal();
+        }
+      });
+
+      function handleFile(file) {
+        if (!file || !file.type.startsWith('image/')) {
+          alert('Por favor, selecione um arquivo de imagem válido (PNG, JPG, WEBP, GIF, SVG).');
+          return;
+        }
+        currentFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          artPreviewImg.src = e.target.result;
+          artFileName.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+          artDropzone.style.display = 'none';
+          artPreviewBox.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      artDropzone.addEventListener('click', () => {
+        artFileInput.click();
+      });
+
+      artDropzone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          artFileInput.click();
+        }
+      });
+
+      btnChangeArt.addEventListener('click', () => {
+        artFileInput.click();
+      });
+
+      artFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleFile(e.target.files[0]);
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach(evtName => {
+        artDropzone.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          artDropzone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evtName => {
+        artDropzone.addEventListener(evtName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          artDropzone.classList.remove('dragover');
+        });
+      });
+
+      artDropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          handleFile(dt.files[0]);
+        }
+      });
+
+      btnGoToWhatsapp.addEventListener('click', () => {
+        const obs = artNotes.value.trim();
+        let msg = "Oi! Quero enviar minha própria arte pra estampar na DISTORCE.";
+        if (obs) {
+          msg += ` Observações: ${obs}.`;
+        }
+        msg += " Vou mandar a arte aqui no chat.";
+        const url = `https://wa.me/5511953336229?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+
+      // FAQ Accordion
+      const faqItems = document.querySelectorAll('.faq-item');
+      faqItems.forEach(item => {
+        const trigger = item.querySelector('.faq-trigger');
+        trigger.addEventListener('click', () => {
+          const isActive = item.classList.contains('active');
+          faqItems.forEach(other => {
+            other.classList.remove('active');
+            other.querySelector('.faq-trigger').setAttribute('aria-expanded', 'false');
+          });
+          if (!isActive) {
+            item.classList.add('active');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      // Chatbot toggle & modal logic
+      const chatbotToggle = document.getElementById('chatbotToggle');
+      const chatbotPanel = document.getElementById('chatbotPanel');
+      const chatCloseBtn = document.getElementById('chatCloseBtn');
+
+      chatbotToggle.addEventListener('click', () => {
+        chatbotPanel.classList.toggle('open');
+      });
+
+      chatCloseBtn.addEventListener('click', () => {
+        chatbotPanel.classList.remove('open');
+      });
+
+      // Tabs
+      const tabQuickBtn = document.getElementById('tabQuickBtn');
+      const tabAiBtn = document.getElementById('tabAiBtn');
+      const tabQuick = document.getElementById('tabQuick');
+      const tabAi = document.getElementById('tabAi');
+
+      tabQuickBtn.addEventListener('click', () => {
+        tabQuickBtn.classList.add('active');
+        tabAiBtn.classList.remove('active');
+        tabQuick.classList.add('active');
+        tabAi.classList.remove('active');
+      });
+
+      tabAiBtn.addEventListener('click', () => {
+        tabAiBtn.classList.add('active');
+        tabQuickBtn.classList.remove('active');
+        tabAi.classList.add('active');
+        tabQuick.classList.remove('active');
+        document.getElementById('aiChatInput').focus();
+      });
+
+      // Quick Chips interaction
+      const quickChips = document.querySelectorAll('.quick-chip');
+      const chipAnswerBox = document.getElementById('chipAnswerBox');
+
+      quickChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const text = chip.getAttribute('data-answer');
+          chipAnswerBox.innerHTML = `<strong>Resposta rápida:</strong><br>${text}`;
+          chipAnswerBox.style.display = 'block';
+          chipAnswerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      });
+
+      // AI Bot Conversational logic
+      const aiChatForm = document.getElementById('aiChatForm');
+      const aiChatInput = document.getElementById('aiChatInput');
+      const aiChatBody = document.getElementById('aiChatBody');
+
+      // Intent knowledge base
+      const knowledge = [
+        {
+          keys: ['prazo', 'tempo', 'demora', 'quando chega', 'dias', 'frete', 'rastreio', 'correios', 'jadlog', 'envio'],
+          reply: 'Postamos seu pedido em 2 a 3 dias úteis! Prazo de entrega varia de 3 a 7 dias úteis no Sul/Sudeste e 5 a 12 dias nas demais regiões. Enviamos o código de rastreamento direto no seu WhatsApp assim que despachado.'
+        },
+        {
+          keys: ['tamanho', 'medida', 'tamanhos', 'oversized', 'tabela', 'p', 'm', 'g', 'gg', 'xgg', 'caimento', 'largona'],
+          reply: 'Temos do P ao XGG! O corte da DISTORCE tem modelagem streetwear autêntica, com ombros soltos. Se você gosta da pegada beeeem oversized folgada, a dica é pegar um tamanho maior do que você costuma usar.'
+        },
+        {
+          keys: ['pagamento', 'pagar', 'pix', 'cartao', 'cartão', 'parcela', 'parcelamento', 'boleto', 'desconto'],
+          reply: 'Rolam várias opções: PIX com 5% de desconto à vista, ou cartão de crédito em até 3x sem juros (ou até 12x com acréscimo da maquininha). Também geramos boleto bancário!'
+        },
+        {
+          keys: ['troca', 'trocar', 'devolucao', 'devolver', 'defeito', 'nao serviu', 'apertada', 'ficou grande'],
+          reply: 'Fica em paz! Você tem 7 dias corridos após receber o pacote pra pedir troca ou devolução. Só precisa manter a etiqueta e a peça sem uso ou lavagem.'
+        },
+        {
+          keys: ['tecido', 'algodao', 'algodão', 'qualidade', 'malha', 'estampa', 'craquela', 'desbota', 'silk', 'gramatura'],
+          reply: 'Aqui é padrão pesado: 100% algodão penteado fio 30.1/26.1 (180g), gola canelada de 2,5cm e reforço ombro a ombro. A estampa é silk screen industrial termofixado que NÃO racha e NÃO descasca.'
+        },
+        {
+          keys: ['personalizada', 'personalizar', 'minha ideia', 'minha arte', 'customizada', 'enviar arte'],
+          reply: 'Fazemos sim projetos sob encomenda a partir de 10 unidades! Se quiser uma peça única ou analisar viabilidade, me chama no WhatsApp com a imagem que a gente avalia.'
+        },
+        {
+          keys: ['atacado', 'revenda', 'lojista', 'lote', 'quantidade'],
+          reply: 'Temos condições especiais para lojistas e revenda a partir de 15 peças com grade variada. Chama direto no WhatsApp pra receber a tabela de atacado.'
+        },
+        {
+          keys: ['como comprar', 'como pedir', 'fazer pedido', 'comprar', 'quero', 'pedir'],
+          reply: 'É bem direto: escolhe a estampa que você curtiu no site e me manda um Whats no (11) 95333-6229 informando seu CEP e tamanho. Fechamos tudo no mesmo instante!'
+        },
+        {
+          keys: ['humano', 'atendente', 'pessoa', 'falar com alguem', 'contato', 'whatsapp', 'zap', 'telefone'],
+          reply: 'Pode deixar! Nosso time de atendimento está pronto no WhatsApp. Clica no botão abaixo para conversar com a gente agora.'
+        }
+      ];
+
+      function findBotResponse(userMsg) {
+        const text = userMsg.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        for (const item of knowledge) {
+          const match = item.keys.some(k => text.includes(k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+          if (match) {
+            return { found: true, text: item.reply };
+          }
+        }
+        return {
+          found: false,
+          text: 'Essa eu não sei de cabeça, mas nosso atendente humano resolve isso em 2 minutos no WhatsApp!'
+        };
+      }
+
+      function addMessage(text, sender, withCta = false) {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${sender}`;
+        bubble.innerHTML = text;
+        if (withCta) {
+          const encoded = encodeURIComponent("Oi! O bot me recomendou falar com um atendente.");
+          const btn = document.createElement('a');
+          btn.href = `https://wa.me/5511953336229?text=${encoded}`;
+          btn.target = "_blank";
+          btn.rel = "noopener noreferrer";
+          btn.className = "btn-acid";
+          btn.style.cssText = "display: inline-block; margin-top: 8px; font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none;";
+          btn.innerText = "Falar com atendente no WhatsApp";
+          bubble.appendChild(document.createElement('br'));
+          bubble.appendChild(btn);
+        }
+        aiChatBody.appendChild(bubble);
+        aiChatBody.scrollTop = aiChatBody.scrollHeight;
+      }
+
+      function showTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'typingIndicator';
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+        aiChatBody.appendChild(indicator);
+        aiChatBody.scrollTop = aiChatBody.scrollHeight;
+        return indicator;
+      }
+
+      aiChatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = aiChatInput.value.trim();
+        if (!query) return;
+
+        addMessage(query, 'user');
+        aiChatInput.value = '';
+
+        const typing = showTypingIndicator();
+
+        setTimeout(() => {
+          typing.remove();
+          const response = findBotResponse(query);
+          addMessage(response.text, 'bot', !response.found || query.toLowerCase().includes('humano') || query.toLowerCase().includes('atendente'));
+        }, 650);
+      });
+    });
+  </script>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisFmt keeps axis tick labels short (compact notation) so long values
+  // (e.g. full BRL amounts) never clip against the plot edge.
+  function axisFmt(v) {
+    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
+  }
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  function coerceFormat(spec) {
+    if (typeof spec === "function") return spec;
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 12, plotH = H - padT - padB;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (v / max) * plotH);
+      var x = padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
+  function line(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 16, plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    var pts = cfg.values.map(function (v, i) {
+      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+      var y = padT + plotH - (v / max) * plotH;
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
+      c.appendChild(t);
+      svg.appendChild(c);
+      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
+    var a0 = -Math.PI / 2;
+    cfg.values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
+    center.textContent = fmt.num(total);
+    svg.appendChild(center);
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+})();
+
+</script>
+</body>
+</html>
